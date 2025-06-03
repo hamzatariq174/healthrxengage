@@ -1,0 +1,490 @@
+{
+  "name": "CronInfoFetcher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        360,
+        -40
+      ],
+      "id": "98da1c80-2d50-453e-b726-0c9793cad6e2",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.hour%3}}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "RSS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3df63a6e-ca44-417e-af4d-e0fc83264a4c",
+                    "leftValue": "={{$json.hour%4}}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "LinkedIn"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c52f8fcf-7ce2-4356-999c-a8abdfc845fb",
+                    "leftValue": "={{$json.hour%5}}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PubMed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3efc68d6-1f15-4f26-b3c3-829d78d7b1af",
+                    "leftValue": "={{$json.hour%6}}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ResearchGate"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        580,
+        400
+      ],
+      "id": "d0189a66-c902-4e32-b006-9388100496ce",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  \"hour\": new Date().getHours()\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        580,
+        -40
+      ],
+      "id": "afdd746e-8e0a-49e5-bd56-bf68c1d6b92f",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a strict JSON extractor.\n\nFrom the provided content, extract all relevant links and return them in the following JSON format:\n\n[\n  {\n    \"title\": string,\n    \"description\": string or null,\n    \"url\": string\n  },\n  ...\n]\n\n❗ Only return the JSON array. No explanation. No markdown.\nHere is the input:\n{{ JSON.stringify($json) }}\n",
+        "options": {
+          "systemMessage": ""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2320,
+        -260
+      ],
+      "id": "1b6ddb95-db38-4434-a205-61785410db35",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2340,
+        80
+      ],
+      "id": "5c2324dd-12ad-45e1-811c-1c0472582434",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "XU5HUtua5yTZFXGM",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://pubmed.ncbi.nlm.nih.gov/?term=cardiovascular&filter=datesearch.y_5&filter=simsearch3.fft&filter=articleattr.data&filter=pubt.booksdocs&filter=pubt.clinicaltrial&filter=lang.english&filter=hum_ani.humans",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        -140
+      ],
+      "id": "38111548-443f-4e2e-ad21-a9d1d72578e5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "return  JSON.parse($input.first().json.output);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2660,
+        -140
+      ],
+      "id": "6d4c5cab-2ec0-4862-95b6-b6116d3422ae",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2880,
+        -140
+      ],
+      "id": "6db64ff6-3e37-49d0-9b1f-b96d35511aab",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Process the following article content and output in the structured format described in the system message:\n---\n{{ JSON.stringify($json.data) }}",
+        "options": {
+          "systemMessage": "You are a healthcare AI assistant. Take the given content from a reputable cardiovascular article and extract a clean summary, title, tags, and metadata. Output in the following JSON structure:\n\n{\n  \"source\": \"scraped\",\n  \"title\": \"...\",\n  \"summary\": \"...\",\n  \"content\": \"...\",\n  \"link\": \"{{ $json.url }}\",\n  \"author\": null,\n  \"date\": null,\n  \"tags\": [\"heart failure\", \"hypertension\"],\n  \"sourceMeta\": {\n    \"platform\": \"auto-detect or use domain\",\n    \"profileId\": null,\n    \"type\": \"article\"\n  }\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        3160,
+        -140
+      ],
+      "id": "680a96d0-e52e-4729-a898-d6c38376cc50",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3200,
+        80
+      ],
+      "id": "f4854a66-4433-494c-864b-c62dca6f24eb",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "XU5HUtua5yTZFXGM",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = $input.first().json.data;\nconst matches = [...html.matchAll(\n  /<a\\s+class=\"docsum-title\"[\\s\\S]*?href=\"([^\"]+)\"[\\s\\S]*?>([\\s\\S]*?)<\\/a>/gi\n)];\n\nconst result = matches.map(m => ({\n  name: m[2].replace(/<[^>]+>/g, '').trim(), // Strip any <b> tags inside title\n  href: `https://pubmed.ncbi.nlm.nih.gov${m[1]}`\n}));\nreturn result.map(r => ({ json: r }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        -140
+      ],
+      "id": "a8d44eb5-f66d-4495-905c-64334676636e",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1240,
+        -140
+      ],
+      "id": "2d6581bb-63c5-40a6-93a1-528533e89a1c",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.href }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1680,
+        -100
+      ],
+      "id": "aa14ad3f-2078-4639-9ed8-2eba639c7fcc",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = $input.first().json.data;\nconst match = html.match(/<div class=\"abstract-content selected\"[^>]*>([\\s\\S]*?)<\\/div>/i);\nlet cleanText = match[1].replace(/<[^>]+>/g, \"\");\n\n// 3. Normalize whitespace: remove excessive spaces/newlines\ncleanText = cleanText.replace(/\\s+/g, \" \").trim();\n\nreturn [\n  {\n    json: {\n      title:$('Code2').first().json.name,\n      abstract: cleanText\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1900,
+        -100
+      ],
+      "id": "19b39c00-3f4f-414b-a812-bd1080352b92",
+      "name": "Code3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b0dccb74-4aac-4c55-ac0d-f4fda90f26e8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dea1938cc04f435a50048418ca6cce8dc33ee90a8aef1ccbb9a9e258681fc7b0"
+  },
+  "id": "xLGE8CHCdbiqR05P",
+  "tags": []
+}

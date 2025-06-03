@@ -1,0 +1,234 @@
+{
+  "name": "sendMessage",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "686283197897100",
+        "recipientPhoneNumber": "={{ $json.targRecieve }}",
+        "textBody": "={{ $json.msgText }}",
+        "additionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "21da5d9c-67eb-4d07-8c88-d76b24acde95",
+      "name": "WhatsApp Business Cloud",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "m9yscEkMqqSYK0iW",
+          "name": "WhatsApp account"
+        }
+      },
+      "disabled": true,
+      "notes": "{{ $('WAMainInput').item.json.messages[0].from.replace(/[^0-9+]/g, '').replace(/@.*/, '') }}"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "masterSendMessage",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "0da24522-4879-4e96-9816-d318cdf335f6",
+      "name": "WebhookTxt",
+      "webhookId": "51e1ff17-d9ff-42e0-9103-9106ba73b646"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "masterSendVoice",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        -160
+      ],
+      "id": "da9115c1-d490-4591-ac93-d8d4bcc42532",
+      "name": "WebhookVoice",
+      "webhookId": "51e1ff17-d9ff-42e0-9103-9106ba73b646"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.vebmy.com/webhook/WAInput1",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        120,
+        -280
+      ],
+      "id": "e3945497-ae1d-4a65-b712-76f5958a443b",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ]
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        -280
+      ],
+      "id": "432b655e-d2ac-435a-a743-876ba0975a72",
+      "name": "WAMainInput",
+      "webhookId": "d3978cae-2aca-4553-8ac7-ab89068deabc",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "veB4rHOYF1pDwmEQ",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        660,
+        -240
+      ],
+      "id": "3860ac3e-e4ea-434a-8f68-a0ba8c865337",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "amount": 1.25
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -160,
+        -420
+      ],
+      "id": "e2a9ca82-a1d5-4c42-afed-8cb01a305c69",
+      "name": "Wait",
+      "webhookId": "3e298878-cda9-43ab-969a-347c22f3ef3b"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v17.0/{{$json.metadata.phone_number_id}}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAQeYp62jYABO9JYZBorFvgmb7cZA0UTTyBkBvWxDnH4qKcgxMvmOmWZB5kJwWVpUBFx92m6tu2BDhntsoEOlhBQ1t8nFNZCoxnulkiNpg7cI6daSppaOXGZAaYtw4cMx5jIKIxZAVsCXTSK2H6PKuOFUN8PXE4KqCdtW0zgprIM1J6KdiLmCx8oZCxyvqz"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"status\": \"read\",\n  \"message_id\": \"{{ $json.messages[0].id }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        40,
+        -480
+      ],
+      "id": "5413538f-d6e6-48b0-988e-c77d9810f74a",
+      "name": "sendReadReceipt"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WebhookTxt": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WebhookVoice": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WAMainInput": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Business Cloud": {
+      "main": [
+        []
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "sendReadReceipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8fd41fb6-b6b1-470d-9484-2266600ad4f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dea1938cc04f435a50048418ca6cce8dc33ee90a8aef1ccbb9a9e258681fc7b0"
+  },
+  "id": "R7smeE7MpEUCS3v7",
+  "tags": []
+}

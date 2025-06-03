@@ -1,0 +1,218 @@
+{
+  "name": "Update From Excel",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "updateUserData1",
+        "responseMode": "lastNode",
+        "responseData": "noData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f3dc871b-e800-4485-996f-7b2e08a90375",
+      "name": "sheetListener",
+      "webhookId": "301d1a3b-18dd-4b1f-8f11-7d59ec09b9a1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "call upsert_user_rowdata('{{ JSON.stringify($json.body.rowData) }}')",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        220,
+        0
+      ],
+      "id": "f1cf7c20-cb0b-4569-8dca-06b35f83463e",
+      "name": "RunQuery",
+      "credentials": {
+        "mySql": {
+          "id": "mZxx4FWdvBv6w4Wp",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "686283197897100",
+        "recipientPhoneNumber": "={{$('sheetListener').item.json.body.rowData.phone_number}}",
+        "textBody": "={{ $json[0].message }}",
+        "additionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -20
+      ],
+      "id": "4a15fa99-bb04-44f1-ba1c-86d18c3559ec",
+      "name": "WhatsApp Business Cloud",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "m9yscEkMqqSYK0iW",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f5732dcf-9e76-4db7-b9ec-c4fcedf65cb9",
+              "leftValue": "={{ $json[0].STATUS }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        360,
+        0
+      ],
+      "id": "c692e94a-9d8a-40e2-8250-090fe5da2c5d",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.vebmy.com/webhook/WAInput1",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"messages\": [\n        {\n          \"from\": \"{{$('sheetListener').item.json.body.rowData.phone_number}}\",\n          \"id\": \"\",\n          \"timestamp\": \"\",\n          \"text\": {\n            \"body\": \"hi\"\n          },\n          \"type\": \"text\"\n        }\n      ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        -300
+      ],
+      "id": "81702f54-ecb4-42b6-9949-3d630a3925b5",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {
+    "sheetListener": [
+      {
+        "json": {
+          "headers": {
+            "connection": "Keep-Alive",
+            "content-type": "application/json",
+            "accept-encoding": "gzip, deflate, br",
+            "host": "localhost:5678",
+            "max-forwards": "10",
+            "user-agent": "Mozilla/5.0 (compatible; Google-Apps-Script; beanserver; +https://script.google.com; id: UAEmdDd-2LiYXWhx8n12FdYLm9i6g31NNC-I)",
+            "x-original-url": "/webhook-test/updateUserData1",
+            "x-forwarded-for": "107.178.192.195:47943",
+            "x-arr-ssl": "3072|256|C=US, O=Let's Encrypt, CN=R11|CN=beta-byte.com",
+            "x-arr-log-id": "6ab8a759-4a6c-4731-b0c6-71d3424ec75c",
+            "content-length": "175"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "type": "new",
+            "rowData": {
+              "username": "athx",
+              "phone_number_raw": "168123149",
+              "frequency": [
+                ""
+              ],
+              "prefTime": [
+                ""
+              ],
+              "_country_code": "60",
+              "phone_number": "60168123149",
+              "user_type": "dr"
+            }
+          },
+          "webhookUrl": "https://n8n.vebmy.com/webhook-test/updateUserData1",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "sheetListener": {
+      "main": [
+        [
+          {
+            "node": "RunQuery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RunQuery": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Business Cloud": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3603ca55-8d0f-411c-87eb-d5837a8f623a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dea1938cc04f435a50048418ca6cce8dc33ee90a8aef1ccbb9a9e258681fc7b0"
+  },
+  "id": "5uoqq42IrzibrMYe",
+  "tags": []
+}
